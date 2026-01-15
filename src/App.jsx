@@ -26,14 +26,13 @@ export default function App() {
 
       const data = await res.json()
 
-      if (!res.ok) {
+      if (!res.ok || !data.success) {
         throw data
       }
 
       setStatus(`Uploaded successfully (ID: ${data.fileId})`)
     } catch (err) {
       console.error(err)
-
       setStatus('Upload failed')
       setError(
         `Stage: ${err.stage || 'unknown'} | Message: ${err.message || 'No details'}`
@@ -43,7 +42,7 @@ export default function App() {
 
   return (
     <div style={{ padding: 40 }}>
-      <h2>Upload to Google Drive</h2>
+      <h2>Upload File to Google Drive</h2>
 
       <input type="file" onChange={e => setFile(e.target.files[0])} />
       <br /><br />
