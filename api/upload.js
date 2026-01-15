@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') {
       return res.status(405).json({
         stage: 'request',
-        error: 'Method not allowed'
+        message: 'Method not allowed'
       })
     }
 
@@ -33,11 +33,11 @@ export default async function handler(req, res) {
     if (!req.file) {
       return res.status(400).json({
         stage: 'multer',
-        error: 'No file received'
+        message: 'No file received'
       })
     }
 
-    // 🔍 AUTH
+    // 🔑 Authenticate service account
     const auth = new google.auth.JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
       key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
@@ -45,20 +45,17 @@ export default async function handler(req, res) {
     })
 
     await auth.authorize().catch(err => {
-      throw {
-        stage: 'auth',
-        message: err.message
-      }
+      throw { stage: 'auth', message: err.message }
     })
 
     const drive = google.drive({ version: 'v3', auth })
 
-    // 🔍 STREAM
     const bufferStream = new stream.PassThrough()
     bufferStream.end(req.file.buffer)
 
-    // 🔍 UPLOAD
+    // 🔄 Upload file to shared folder
     const response = await drive.files.create({
+      supportsAllDrives: true, // Required for shared folders
       requestBody: {
         name: req.file.originalname,
         parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
@@ -69,14 +66,15 @@ export default async function handler(req, res) {
       }
     })
 
-    return res.json({
+    res.json({
       success: true,
-      fileId: response.data.id
+      fileId: response.data.id,
+      message: 'File uploaded successfully'
     })
   } catch (err) {
     console.error('UPLOAD ERROR:', err)
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       stage: err.stage || 'unknown',
       message: err.message || 'Unknown error',
