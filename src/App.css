@@ -1,0 +1,153 @@
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+h1 {
+  color: #333;
+  border-bottom: 2px solid #4285f4;
+  padding-bottom: 10px;
+}
+
+.upload-section, .files-section {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.file-input {
+  display: block;
+  margin: 15px 0;
+  padding: 10px;
+  border: 2px dashed #ddd;
+  border-radius: 4px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.file-input:hover {
+  border-color: #4285f4;
+}
+
+.progress-container {
+  background: #f1f1f1;
+  border-radius: 4px;
+  height: 24px;
+  margin: 15px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background: #4285f4;
+  height: 100%;
+  transition: width 0.3s;
+}
+
+.progress-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  font-weight: bold;
+}
+
+.message {
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.files-grid {
+  display: grid;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.file-card {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 15px;
+  transition: transform 0.2s;
+}
+
+.file-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.file-name {
+  font-weight: bold;
+  margin-bottom: 8px;
+  word-break: break-all;
+}
+
+.file-details {
+  display: flex;
+  justify-content: space-between;
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.view-link {
+  display: inline-block;
+  color: #4285f4;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.view-link:hover {
+  text-decoration: underline;
+}
+
+.refresh-btn {
+  background: #4285f4;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: #3367d6;
+}
+
+.refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.note {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 30px;
+  font-size: 14px;
+}
