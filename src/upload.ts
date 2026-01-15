@@ -22,7 +22,7 @@ export async function uploadToDrive(file: File): Promise<UploadResponse> {
     }
 
     // Step 1: Get access token using service account
-    const accessToken = await getAccessToken(serviceAccount);
+    const accessToken = await getAccessToken();
     
     // Step 2: Prepare file metadata
     const metadata = {
@@ -68,27 +68,8 @@ export async function uploadToDrive(file: File): Promise<UploadResponse> {
   }
 }
 
-async function getAccessToken(serviceAccount: any): Promise<string> {
+async function getAccessToken(): Promise<string> {
   try {
-    // Create JWT token
-    const header = {
-      alg: 'RS256',
-      typ: 'JWT'
-    };
-
-    const now = Math.floor(Date.now() / 1000);
-    const claimSet = {
-      iss: serviceAccount.client_email,
-      scope: 'https://www.googleapis.com/auth/drive.file',
-      aud: 'https://oauth2.googleapis.com/token',
-      exp: now + 3600,
-      iat: now
-    };
-
-    // Encode JWT
-    const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '');
-    const encodedClaimSet = btoa(JSON.stringify(claimSet)).replace(/=/g, '');
-    
     // Note: In a real app, you should use a proper JWT library and NEVER expose private key in frontend
     // This is just for testing
     console.warn('WARNING: This is a testing implementation. Do not use in production!');
@@ -127,7 +108,6 @@ async function getAccessTokenSimple(): Promise<string> {
 // List files in folder
 export async function listFiles(): Promise<any[]> {
   try {
-    const serviceAccount = JSON.parse(import.meta.env.VITE_GOOGLE_SERVICE_ACCOUNT || '{}');
     const folderId = import.meta.env.VITE_GOOGLE_DRIVE_FOLDER_ID;
     const accessToken = await getAccessTokenSimple();
 
