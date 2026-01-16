@@ -1,108 +1,59 @@
-import { useState } from "react"
-import { storage } from "./firebase"
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
+import { useState } from 'react'
 
 export default function App() {
   const [file, setFile] = useState(null)
-  const [stage, setStage] = useState("idle")
-  const [message, setMessage] = useState("")
+  const [status, setStatus] = useState('')
+  const [url, setUrl] = useState('')
 
-  const MAX_SIZE_MB = 50
+  async function upload() {
+    if (!file) return alert('Select a file')
+    setStatus('Reading file...')
 
-  const fail = (where, err) => {
-    console.error(where, err)
+    // Read file as Base64
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onloadend = async () => {
+      const base64String = reader.result.split(',')[1] // remove prefix
+      setStatus('Uploading...')
 
-    let msg = "Unknown error"
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileName: file.name,
+            file: base64String,
+          }),
+        })
 
-    if (!err) {
-      msg = "Unexpected failure"
-    } else if (err.code) {
-      switch (err.code) {
-        case "storage/unauthorized":
-          msg = "Permission denied. Check Firebase Storage rules."
-          break
-        case "storage/canceled":
-          msg = "Upload canceled."
-          break
-        case "storage/unknown":
-          msg = "Unknown storage error. Check network & bucket."
-          break
-        case "storage/quota-exceeded":
-          msg = "Storage quota exceeded."
-          break
-        default:
-          msg = `${err.code}: ${err.message}`
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error)
+
+        setUrl(data.url)
+        setStatus('Upload complete ✅')
+      } catch (err) {
+        console.error(err)
+        setStatus('Error: ' + err.message)
       }
-    } else if (err.message) {
-      msg = err.message
-    }
-
-    setStage(where)
-    setMessage(msg)
-  }
-
-  const uploadFile = async () => {
-    if (!storage) {
-      fail("init", { message: "Firebase not initialized" })
-      return
-    }
-
-    if (!file) {
-      fail("validation", { message: "No file selected" })
-      return
-    }
-
-    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-      fail("validation", {
-        message: `File too large (max ${MAX_SIZE_MB}MB)`
-      })
-      return
-    }
-
-    try {
-      setStage("uploading")
-      setMessage("Uploading file...")
-
-      const fileRef = ref(
-        storage,
-        `uploads/${Date.now()}-${file.name}`
-      )
-
-      const snapshot = await uploadBytes(fileRef, file)
-
-      setStage("finalizing")
-      setMessage("Getting download URL...")
-
-      const url = await getDownloadURL(snapshot.ref)
-
-      setStage("success")
-      setMessage(`Upload successful!\n${url}`)
-    } catch (err) {
-      fail("upload", err)
     }
   }
 
   return (
-    <div style={{ padding: 20, fontFamily: "sans-serif" }}>
-      <h2>Firebase Storage Upload Test</h2>
-
-      <input
-        type="file"
-        onChange={(e) => setFile(e.target.files[0])}
-      />
-
+    <div style={{ padding: 40 }}>
+      <h2>Supabase Upload Test</h2>
+      <input type="file" onChange={e => setFile(e.target.files[0])} />
       <br /><br />
+      <button onClick={upload}>Upload</button>
+      <p>{status}</p>
 
-      <button onClick={uploadFile}>
-        Upload
-      </button>
-
-      <hr />
-
-      <strong>Stage:</strong> {stage}
-      <br />
-      <strong>Message:</strong>
-      <pre>{message}</pre>
+      {url && (
+        <>
+          <a href={url} target="_blank">View File</a>
+          <br />
+          {file.type.startsWith('image') && <img src={url} width="200" />}
+          {file.type.startsWith('video') && <video src={url} controls width="400" />}
+        </>
+      )}
     </div>
   )
 }
